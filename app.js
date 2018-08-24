@@ -45,10 +45,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // routes
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
+const homeRouter = require('./routes/home');
 
 //login and signup both point to authRouter
 app.use('/api/auth', authRouter);
-
+app.use('/api', homeRouter);
 app.use('/', indexRouter);
 
 
