@@ -5,9 +5,11 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const LocalStrategy = require("passport-local");
-const passport = require("passport");
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser')
+const session = require('express-session');
+const passport = require('passport');
+const passportSetup = require('./config/passport');
+passportSetup(passport);
 
 const app = express();
 
@@ -29,12 +31,29 @@ db.on('connected', () => {
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 //End of mongoose config
 
+//passport
+app.use(session({
+  secret: process.env.SECRET_SESSION,
+  resave: true,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    maxAge: 2419200000
+  }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
 app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(express.json());
 app.use(express.urlencoded({
   extended: false
@@ -47,7 +66,7 @@ const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 
 //login and signup both point to authRouter
-app.use('/api/auth', authRouter);
+app.use('/api', authRouter);
 
 app.use('/', indexRouter);
 
