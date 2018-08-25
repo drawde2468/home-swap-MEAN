@@ -13,9 +13,15 @@ const homeSchema = new Schema({
     zipCode: {type: String, required: true},
   },
   description:{type: String, required: true},
-  images:{},
-  reviewRate:{},
-  reviews: {}
+  images: [{
+    url: String,
+    id: String, 
+  }],
+  reviews:[{
+    user: {type : Schema.Types.ObjectId, ref: 'Users', required:true},
+    rate: {type: Number, required: true},
+    comment: {type: String}
+  }]
 });
 
 homeSchema.set('timestamps', true);
