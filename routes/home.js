@@ -9,10 +9,10 @@ const storage = cloudinaryStorage({
   cloudinary: cloudinary,
   folder: "homes",
   allowedFormats: ["jpg", "png"],
-  transformation: [{ width: 500, height: 500, crop: "limit" }]
-  });
+  transformation: [{ width: 500, height: 500, crop: "limit" }],
+});
 
-const parser = multer({ storage: storage });
+const parser = multer({ storage: storage }).array('homePhotos', 10);
 
 const router = express.Router();
 
@@ -54,31 +54,36 @@ router.get('/myhome/:id', (req, res, next) => {
 });
 
 // route for user to add a home to their account
-router.post('/myhome', parser.array('photos', 10), (req, res, next) => {
+router.post('/myhome', parser, (req, res, next) => {
   const userId = req.user._id;
-  const homePhotos = req.files;
-  const images = [{}];
-  // to see what is returned to you
   console.log(req.files);
+  const homePhotos = req.files;
+  const images = [];
+
+  // to see what is returned to you
+  // console.log(req.files);
 
   for (i=0; i<homePhotos.length; i++) {
-    images.push(homePhotos.url[i], homePhotos.id[i]);
+    let img = {
+    url: homePhotos[i].url,
+    id: homePhotos[i].id,
+    };
+    images.push(img);
   }
-
-  // const image = {};
-  // image.url = req.files['photos'].url;
-  // image.id = req.files.public_id;
 
   const {
     homeType, 
     locationType, 
     settingType,
-    address,
     description,
+    street,
+    city,
+    state,
+    zipCode,
+    country
   } = req.body;
 
-  // const homeImages = `/uploads/${req.files.filename}`
-  // parser.array('photos', 10) ---goes in the route as a parameter
+  const address = {street, city, state, zipCode, country};
 
   const userHome = new Home({
     owner: userId,

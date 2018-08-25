@@ -58,7 +58,7 @@ const authRouter = require('./routes/auth');
 const homeRouter = require('./routes/home');
 
 //login and signup both point to authRouter
-app.use('/api/auth', authRouter);
+app.use('/api', authRouter);
 app.use('/api', homeRouter);
 app.use('/', indexRouter);
 
