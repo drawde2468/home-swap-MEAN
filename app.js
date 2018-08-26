@@ -5,11 +5,10 @@ const express           = require('express');
 const path              = require('path');
 const cookieParser      = require('cookie-parser');
 const logger            = require('morgan');
-const LocalStrategy     = require("passport-local");
 const passport          = require("passport");
 const bodyParser        = require("body-parser");
 const cloudinary        = require("cloudinary");
-const session = require('express-session');
+const session           = require('express-session');
 
 const passportSetup = require('./config/passport');
 passportSetup(passport);

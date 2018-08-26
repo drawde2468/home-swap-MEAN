@@ -2,7 +2,7 @@ const mongoose    = require('mongoose');
 const Schema      = mongoose.Schema;
 
 const homeSchema = new Schema({
-  // owner: {type : Schema.Types.ObjectId, ref: 'Users', required:true},
+  owner: {type : Schema.Types.ObjectId, ref: 'Users', required:true},
   homeType: {type: String,required: true},
   locationType:{type: String, required: true},
   settingType: {type: String, required: true},
