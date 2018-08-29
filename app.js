@@ -76,6 +76,7 @@ const authRouter = require('./routes/auth');
 const homeRouter = require('./routes/home');
 const reviewRouter = require('./routes/review');
 const matchRouter = require('./routes/match');
+const travelRouter = require('./routes/travel');
 
 //login and signup both point to authRouter
 app.use('/api', authRouter);
@@ -83,6 +84,7 @@ app.use('/api', homeRouter);
 app.use('/api', reviewRouter);
 app.use('/api', matchRouter);
 
+app.use('/api', travelRouter);
 app.use('/', indexRouter);
 
 
