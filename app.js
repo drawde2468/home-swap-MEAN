@@ -76,12 +76,14 @@ const authRouter = require('./routes/auth');
 const homeRouter = require('./routes/home');
 const reviewRouter = require('./routes/review');
 const travelRouter = require('./routes/travel');
+const myAccountRouter = require('./routes/account');
 
 //login and signup both point to authRouter
 app.use('/api', authRouter);
 app.use('/api', homeRouter);
 app.use('/api', reviewRouter);
 app.use('/api', travelRouter);
+app.use('/api', myAccountRouter);
 app.use('/', indexRouter);
 
 

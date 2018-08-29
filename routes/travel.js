@@ -2,7 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Travel = require("../models/travel");
 const Home = require("../models/home");
-const { ObjectId } = require('mongodb');
+const {
+    ObjectId
+} = require('mongodb');
 
 const router = express.Router();
 
@@ -73,11 +75,11 @@ router.put("/travel/:id", (req, res, next) => {
         }
 
         const updatedTravel = {
-            beginDate : req.body.beginDate,
-            endDate : req.body.endDate,
-            homeType : req.body.homeType,
-            locationType : req.body.locationType,
-            settingType : req.body.settingType
+            beginDate: req.body.beginDate,
+            endDate: req.body.endDate,
+            homeType: req.body.homeType,
+            locationType: req.body.locationType,
+            settingType: req.body.settingType
         };
 
         Travel.findOneAndUpdate(travelId, updatedTravel, {
@@ -119,6 +121,106 @@ router.delete("/travel/:id", (req, res, next) => {
             })
             .catch(error => next(error));
 
+        return;
+    }
+
+    res.status(403).json({
+        message: "Unauthorized"
+    });
+});
+
+router.put("/like/:id", (req, res, next) => {
+
+    if (req.isAuthenticated()) {
+        //parameter coming in is of the other user's travel request
+        const likeId = ObjectId(req.params.id);
+        let travelId;
+
+        if (!mongoose.Types.ObjectId.isValid(likeId)) {
+            res.status(400).json({
+                message: "Specified id is not valid"
+            });
+            return;
+        }
+
+        //query for the active travel _id of the logged in user
+        Travel.find({
+                $and: [{
+                    user: ObjectId(req.user._id)
+                }, {
+                    active: true
+                }]
+            }, {
+                _id: 1
+            }).exec()
+            .then((result) => {
+                travelId = result[0]._id;
+                //pushes parameter travel request _id into the logged in user's homesLiked arr
+                Travel.updateOne({
+                    _id: travelId
+                }, {
+                    $push: {
+                        homesLiked: likeId
+                    }
+                }).then(() => {
+                    return res.json({
+                        message: "Your like was successful"
+                    });
+                }).catch(error => next(error));
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        return;
+    }
+
+    res.status(403).json({
+        message: "Unauthorized"
+    });
+});
+
+//identical to above route but instead dealing with disliked 
+router.put("/dislike/:id", (req, res, next) => {
+
+    if (req.isAuthenticated()) {
+        const disLikeId = ObjectId(req.params.id);
+        let travelId;
+
+        if (!mongoose.Types.ObjectId.isValid(disLikeId)) {
+            res.status(400).json({
+                message: "Specified id is not valid"
+            });
+            return;
+        }
+
+        Travel.find({
+                $and: [{
+                    user: ObjectId(req.user._id)
+                }, {
+                    active: true
+                }]
+            }, {
+                _id: 1
+            }).exec()
+            .then((result) => {
+
+                travelId = result[0]._id;
+
+                Travel.updateOne({
+                    _id: travelId
+                }, {
+                    $push: {
+                        homesDisliked: disLikeId
+                    }
+                }).then(() => {
+                    return res.json({
+                        message: "Your dislike was successful"
+                    });
+                }).catch(error => next(error));
+            })
+            .catch((err) => {
+                console.log(err);
+            })
         return;
     }
 
