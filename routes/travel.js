@@ -2,7 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Travel = require("../models/travel");
 const Home = require("../models/home");
-const { ObjectId } = require('mongodb');
+const {
+    ObjectId
+} = require('mongodb');
 
 const router = express.Router();
 
@@ -15,9 +17,9 @@ router.post("/travel", (req, res, next) => {
         const {
             beginDate,
             endDate,
-            homeType,
-            locationType,
-            settingType
+            home,
+            setting,
+            landscape
         } = req.body;
 
         //query homeDb for the home belonging to user
@@ -35,9 +37,9 @@ router.post("/travel", (req, res, next) => {
                     userHome,
                     beginDate,
                     endDate,
-                    homeType,
-                    locationType,
-                    settingType
+                    home,
+                    setting,
+                    landscape
                 });
 
                 travelRequest
@@ -73,11 +75,11 @@ router.put("/travel/:id", (req, res, next) => {
         }
 
         const updatedTravel = {
-            beginDate : req.body.beginDate,
-            endDate : req.body.endDate,
-            homeType : req.body.homeType,
-            locationType : req.body.locationType,
-            settingType : req.body.settingType
+            beginDate: req.body.beginDate,
+            endDate: req.body.endDate,
+            home: req.body.home,
+            setting: req.body.setting,
+            landscape: req.body.landscape
         };
 
         Travel.findOneAndUpdate(travelId, updatedTravel, {
@@ -119,6 +121,106 @@ router.delete("/travel/:id", (req, res, next) => {
             })
             .catch(error => next(error));
 
+        return;
+    }
+
+    res.status(403).json({
+        message: "Unauthorized"
+    });
+});
+
+router.put("/travel/like/:id", (req, res, next) => {
+
+    if (req.isAuthenticated()) {
+        //parameter coming in is of the other user's travel request
+        const otherTravelId = ObjectId(req.params.id);
+        let userTravelId;
+
+        if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
+            res.status(400).json({
+                message: "Specified id is not valid"
+            });
+            return;
+        }
+
+        //query for the active travel _id of the logged in user
+        Travel.find({
+                $and: [{
+                    user: ObjectId(req.user._id)
+                }, {
+                    active: true
+                }]
+            }, {
+                _id: 1
+            }).exec()
+            .then((result) => {
+                userTravelId = result[0]._id;
+                //pushes parameter travel request _id into the logged in user's homesLiked arr
+                Travel.updateOne({
+                    _id: userTravelId
+                }, {
+                    $push: {
+                        homesLiked: otherTravelId
+                    }
+                }).then(() => {
+                    return res.json({
+                        message: "Your like was successful"
+                    });
+                }).catch(error => next(error));
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        return;
+    }
+
+    res.status(403).json({
+        message: "Unauthorized"
+    });
+});
+
+//identical to above route but instead dealing with disliked 
+router.put("/travel/dislike/:id", (req, res, next) => {
+
+    if (req.isAuthenticated()) {
+        const otherTravelId = ObjectId(req.params.id);
+        let userTravelId;
+
+        if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
+            res.status(400).json({
+                message: "Specified id is not valid"
+            });
+            return;
+        }
+
+        Travel.find({
+                $and: [{
+                    user: ObjectId(req.user._id)
+                }, {
+                    active: true
+                }]
+            }, {
+                _id: 1
+            }).exec()
+            .then((result) => {
+
+                userTravelId = result[0]._id;
+
+                Travel.updateOne({
+                    _id: userTravelId
+                }, {
+                    $push: {
+                        homesDisliked: otherTravelId
+                    }
+                }).then(() => {
+                    return res.json({
+                        message: "Your dislike was successful"
+                    });
+                }).catch(error => next(error));
+            })
+            .catch((err) => {
+                console.log(err);
+            })
         return;
     }
 

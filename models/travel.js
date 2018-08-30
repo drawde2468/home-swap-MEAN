@@ -20,19 +20,20 @@ const travelSchema = new Schema({
         type: Date,
         required: true
     },
-    homeType: {
+    home: {
         type: String,
-        enum: ['Home', 'Apt', 'Both'],
+        enum: ['House', 'Apt', 'All'],
         required: true
     },
-    locationType: {
+    setting: {
         type: String,
         enum: ['Urban', 'Suburban', 'Rural', 'All'],
         required: true
     },
-    settingType: {
+    landscape: {
         type: String,
-        enum: ['Tropical', 'Mountainous', 'City']
+        enum: ['Tropical', 'Mountainous', 'City', 'Coastal', 'All'],
+        required: true
     },
     active: {
         type: Boolean,
@@ -40,11 +41,11 @@ const travelSchema = new Schema({
     },
     homesLiked: [{
         type: Schema.Types.ObjectId,
-        ref: 'Homes'
+        ref: 'Travels'
     }],
     homesDisliked: [{
         type: Schema.Types.ObjectId,
-        ref: 'Homes'
+        ref: 'Travels'
     }]
 }, {
     timestamps: {
