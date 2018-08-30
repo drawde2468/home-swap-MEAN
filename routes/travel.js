@@ -17,9 +17,9 @@ router.post("/travel", (req, res, next) => {
         const {
             beginDate,
             endDate,
-            homeType,
-            locationType,
-            settingType
+            home,
+            setting,
+            landscape
         } = req.body;
 
         //query homeDb for the home belonging to user
@@ -37,9 +37,9 @@ router.post("/travel", (req, res, next) => {
                     userHome,
                     beginDate,
                     endDate,
-                    homeType,
-                    locationType,
-                    settingType
+                    home,
+                    setting,
+                    landscape
                 });
 
                 travelRequest
@@ -77,9 +77,9 @@ router.put("/travel/:id", (req, res, next) => {
         const updatedTravel = {
             beginDate: req.body.beginDate,
             endDate: req.body.endDate,
-            homeType: req.body.homeType,
-            locationType: req.body.locationType,
-            settingType: req.body.settingType
+            home: req.body.home,
+            setting: req.body.setting,
+            landscape: req.body.landscape
         };
 
         Travel.findOneAndUpdate(travelId, updatedTravel, {
@@ -129,14 +129,14 @@ router.delete("/travel/:id", (req, res, next) => {
     });
 });
 
-router.put("/like/:id", (req, res, next) => {
+router.put("/travel/like/:id", (req, res, next) => {
 
     if (req.isAuthenticated()) {
         //parameter coming in is of the other user's travel request
-        const likeId = ObjectId(req.params.id);
-        let travelId;
+        const otherTravelId = ObjectId(req.params.id);
+        let userTravelId;
 
-        if (!mongoose.Types.ObjectId.isValid(likeId)) {
+        if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
             res.status(400).json({
                 message: "Specified id is not valid"
             });
@@ -154,13 +154,13 @@ router.put("/like/:id", (req, res, next) => {
                 _id: 1
             }).exec()
             .then((result) => {
-                travelId = result[0]._id;
+                userTravelId = result[0]._id;
                 //pushes parameter travel request _id into the logged in user's homesLiked arr
                 Travel.updateOne({
-                    _id: travelId
+                    _id: userTravelId
                 }, {
                     $push: {
-                        homesLiked: likeId
+                        homesLiked: otherTravelId
                     }
                 }).then(() => {
                     return res.json({
@@ -180,13 +180,13 @@ router.put("/like/:id", (req, res, next) => {
 });
 
 //identical to above route but instead dealing with disliked 
-router.put("/dislike/:id", (req, res, next) => {
+router.put("/travel/dislike/:id", (req, res, next) => {
 
     if (req.isAuthenticated()) {
-        const disLikeId = ObjectId(req.params.id);
-        let travelId;
+        const otherTravelId = ObjectId(req.params.id);
+        let userTravelId;
 
-        if (!mongoose.Types.ObjectId.isValid(disLikeId)) {
+        if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
             res.status(400).json({
                 message: "Specified id is not valid"
             });
@@ -204,13 +204,13 @@ router.put("/dislike/:id", (req, res, next) => {
             }).exec()
             .then((result) => {
 
-                travelId = result[0]._id;
+                userTravelId = result[0]._id;
 
                 Travel.updateOne({
-                    _id: travelId
+                    _id: userTravelId
                 }, {
                     $push: {
-                        homesDisliked: disLikeId
+                        homesDisliked: otherTravelId
                     }
                 }).then(() => {
                     return res.json({
