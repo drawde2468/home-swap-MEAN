@@ -5,9 +5,9 @@ const Match = require("../models/match");
 const router = express.Router();
 
 //route for getting all the user's matches
-router.get("/match/:id", (req, res, next) => {
+router.get("/match", (req, res, next) => {
   if (req.isAuthenticated()) {
-    const user = req.params.id;
+    const user = req.user._id;
 
     Match.find({ userRequest1: user, userRequest2: user })
       .then((matches, err) => {
@@ -32,16 +32,10 @@ router.post("/match/:id1/:id2", (req, res, next) => {
   if (req.isAuthenticated()) {
     const userRequest1 = req.params.id1;
     const userRequest2 = req.params.id2;
-    const confirmed1='';
-    const confirmed2='';
-    const active='true';
 
     const match = new Match({
       userRequest1,
       userRequest2,
-      confirmed1,
-      confirmed2,
-      active
     });
 
     match

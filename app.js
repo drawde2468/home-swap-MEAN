@@ -83,8 +83,8 @@ app.use('/api', authRouter);
 app.use('/api', homeRouter);
 app.use('/api', reviewRouter);
 app.use('/api', matchRouter);
-
 app.use('/api', travelRouter);
+
 app.use('/', indexRouter);
 
 

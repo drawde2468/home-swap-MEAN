@@ -98,7 +98,7 @@ router.post("/myhome", parser, (req, res, next) => {
 
     // const address = { street, city, state, zipCode, country };
 
-    const { homeType, locationType, settingType, description } = req.body;
+    const { home, setting, landscape, description } = req.body;
 
     const address = {
       street: req.body.address.street,
@@ -107,15 +107,12 @@ router.post("/myhome", parser, (req, res, next) => {
       zipCode: req.body.address.zipCode,
       country: req.body.address.country
     };
-    // console.log(req.body.address);
-    // console.log(req.user._id);
-    // console.log(address);
 
     const userHome = new Home({
       owner,
-      homeType,
-      locationType,
-      settingType,
+      home,
+      setting,
+      landscape,
       address,
       description
       // images
