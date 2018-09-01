@@ -1,39 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Review = require("../models/review");
+const Home = require("../models/home");
 
 const router = express.Router();
-
-// route for user to add a review of a home
-router.post("/review", (req, res, next) => {
-  if (req.isAuthenticated()) {
-    const user = req.user._id;
-
-    const { home, rating, comment } = req.body;
-
-    const homeReview = new Review({
-      user,
-      home,
-      rating,
-      comment
-    });
-
-    homeReview
-      .save()
-      .then(homeReview => {
-        res.json({
-          message: "New Review Added!"
-        });
-      })
-      .catch(error => next(error));
-
-    return;
-  }
-
-  res.status(403).json({
-    message: "Unauthorized"
-  });
-});
 
 // route to get all the reviews for a home
 router.get("/review/:id", (req, res, next) => {
@@ -47,6 +17,46 @@ router.get("/review/:id", (req, res, next) => {
           return;
         }
         res.json(homeReviews);
+      })
+      .catch(error => next(error));
+
+    return;
+  }
+
+  res.status(403).json({
+    message: "Unauthorized"
+  });
+});
+
+// route for user to add a review of a home
+router.post("/review", (req, res, next) => {
+  if (req.isAuthenticated()) {
+    const user = req.user._id;
+    let homeReviewId;
+    let homeId;
+
+    const { home, rating, comment } = req.body;
+
+    const homeReview = new Review({
+      user,
+      home,
+      rating,
+      comment
+    });
+
+    homeReview
+      .save()
+      .then(review => {
+        homeReviewId = review._id;
+        homeId = review.home;
+        
+        Home.updateOne({_id: homeId},{$push: {reviews: homeReviewId}}, { new: true })
+        .then(home => {
+          res.json({
+            message: "Your review was added to the home successfully"
+          });
+        })
+        .catch(error => next(error));
       })
       .catch(error => next(error));
 
@@ -89,29 +99,29 @@ router.put("/review/:id", (req, res, next) => {
 });
 
 // route for user to delete their review of a home
-router.delete("/review/:id", (req, res, next) => {
-  if (req.isAuthenticated()) {
-    const reviewId = req.params.id;
+// router.delete("/review/:id", (req, res, next) => {
+//   if (req.isAuthenticated()) {
+//     const reviewId = req.params.id;
 
-    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
-      res.status(400).json({ message: "Specified id is not valid" });
-      return;
-    }
+//     if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+//       res.status(400).json({ message: "Specified id is not valid" });
+//       return;
+//     }
 
-    Review.deleteOne({ _id: reviewId })
-      .then(message => {
-        return res.json({
-          message: "Review has been removed!"
-        });
-      })
-      .catch(error => next(error));
+//     Review.deleteOne({ _id: reviewId })
+//       .then(message => {
+//         return res.json({
+//           message: "Review has been removed!"
+//         });
+//       })
+//       .catch(error => next(error));
 
-    return;
-  }
+//     return;
+//   }
 
-  res.status(403).json({
-    message: "Unauthorized"
-  });
-});
+//   res.status(403).json({
+//     message: "Unauthorized"
+//   });
+// });
 
 module.exports = router;
