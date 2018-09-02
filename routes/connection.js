@@ -10,7 +10,7 @@ router.get("/connection", (req, res, next) => {
   if (req.isAuthenticated()) {
     const user = req.user._id;
 
-    Connection.find({$or:[{user1: user},{user2: user}]})
+    Connection.find({$or:[{user1: user},{user2: user}]}, '-_id -__v -updatedAt')
       .then((connections, err) => {
         if (err) {
           res.json(err);
@@ -31,24 +31,40 @@ router.get("/connection", (req, res, next) => {
 //route for creating a connection
 router.post("/connection/:id1/:id2", (req, res, next) => {
   if (req.isAuthenticated()) {
-    const userRequest1 = req.params.id1;
-    const userRequest2 = req.params.id2;
-    const user1 = req.user._id;
-    // const user2 = 
+    const user = req.user._id;
+    const userRequest = req.params.id1;
+    const otherUserRequest = req.params.id2;
+    
+    // let connectionId;
 
     const connection = new Connection({
-      user1,
-      user2,
-      userRequest1,
-      userRequest2,
+      user1: user,
+      userRequest1: userRequest,
+      userRequest2: otherUserRequest,
     });
 
     connection
       .save()
-      .then(connection => {
-        res.json({
-          message: "New Connection Added!"
-        });
+      .then(newConnection => {
+        let connectionId = newConnection._id;
+        // querying to get the newly created connection in order to pull the user2 id from the user2 travel request reference
+        // and set it equal to user2 reference id in the newly created connection (see connection model)
+        Connection.findById(connectionId, 'userRequest2')
+        .populate({path:'userRequest2', select:'user -_id',
+          populate:{path:'user', select:'_id'}
+        })
+        .then(connection => {
+          let user2=connection.userRequest2.user._id;
+          connection.set({ user2: user2 });
+          connection.save()
+          .then(updatedConnection => {
+            res.json( {
+              message: "You have a new travel connection!"
+            });
+          })
+          .catch(error => next(error));
+        })
+        .catch(error => next(error));
       })
       .catch(error => next(error));
 
