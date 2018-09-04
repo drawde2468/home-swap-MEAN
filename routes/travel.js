@@ -8,6 +8,24 @@ const {
 
 const router = express.Router();
 
+router.get("/travel", (req, res, next) => {
+    if (req.isAuthenticated()) {
+        const user = req.user._id;
+
+        Travel.find({
+            user: ObjectId(user)
+        }).then((travels) => {
+            return res.json({
+                travels
+            });
+        }).catch(error => next(error));
+    } else {
+        res.status(403).json({
+            message: "Unauthorized"
+        });
+    }
+});
+
 // route for creating a new travel event
 router.post("/travel", (req, res, next) => {
     if (req.isAuthenticated()) {
@@ -26,11 +44,10 @@ router.post("/travel", (req, res, next) => {
         Home.find({
                 owner: ObjectId(user)
             }, {
-                owner: 1,
-                _id: 0
+                _id: 1
             }).exec()
             .then((result) => {
-                userHome = result[0].owner;
+                userHome = result[0]._id;
                 //saves new travel request with variables defined above
                 const travelRequest = new Travel({
                     user,
@@ -228,5 +245,61 @@ router.put("/travel/dislike/:id", (req, res, next) => {
         message: "Unauthorized"
     });
 });
+
+//gets passed the id of the users travel request. returns all of the matches of their travel request with home populated
+router.get("/travel/:id/results", (req, res, next) => {
+
+    const travelId = req.params.id
+    // console.log(travelId);
+
+    Travel.findOne({
+        _id: ObjectId(travelId)
+    }).then((parameters) => {
+        // console.log(parameters)
+
+        if (parameters) {
+
+            const {
+                beginDate,
+                endDate,
+                home,
+                setting,
+                landscape
+            } = parameters;
+
+            Home.find({
+                home: home,
+                setting: setting,
+                landscape: landscape
+            }, {
+                _id: 1
+            }).then((homeIdArr) => {
+
+                // console.log(homeIdArr);
+                Travel.find({
+                    beginDate: beginDate,
+                    endDate: endDate,
+                    _id: {
+                        $ne: ObjectId(travelId)
+                    },
+                    userHome: {
+                        $in: homeIdArr
+                    }
+                }).populate('userHome').then((results) => {
+                    // console.log(results);
+                    return res.json({
+                        results
+                    });
+                }).catch(error => next(error));
+            }).catch(error => next(error));
+        } else {
+            return res.json({
+                message: `Not results found.`
+            });
+        }
+    }).catch(error => next(error));
+    return;
+});
+
 
 module.exports = router;
