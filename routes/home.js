@@ -49,6 +49,7 @@ router.get("/myhome/:id", (req, res, next) => {
     }
 
     Home.findById(homeId)
+    .populate('reviews', {_id: 0, home: 0})
       .then((userHome, err) => {
         if (err) {
           res.json(err);
@@ -98,7 +99,7 @@ router.post("/myhome", parser, (req, res, next) => {
 
     // const address = { street, city, state, zipCode, country };
 
-    const { home, setting, landscape, description } = req.body;
+    const { home, setting, landscape, bedrooms, beds, baths, description } = req.body;
 
     const address = {
       street: req.body.address.street,
@@ -113,6 +114,9 @@ router.post("/myhome", parser, (req, res, next) => {
       home,
       setting,
       landscape,
+      bedrooms,
+      beds,
+      baths,
       address,
       description
       // images
@@ -172,9 +176,12 @@ router.put("/myhome/:id", (req, res, next) => {
     }
 
     const homeUpdate = {
-      homeType: req.body.homeType,
-      locationType: req.body.locationType,
-      settingType: req.body.settingType,
+      home: req.body.home,
+      setting: req.body.setting,
+      landscape: req.body.landscape,
+      bedrooms: req.body.bedrooms,
+      beds: req.body.beds,
+      baths: req.body.baths,
       address: req.body.address,
       description: req.body.description
       // images:

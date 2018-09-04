@@ -27,7 +27,7 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 //Success MongoDB Connection
 db.on('connected', () => {
-  console.log("Successfully connected to Mongo!")
+  console.log("Successfully connected to Mongo!");
 });
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -75,16 +75,18 @@ const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const homeRouter = require('./routes/home');
 const reviewRouter = require('./routes/review');
-const matchRouter = require('./routes/match');
+const connectionRouter = require('./routes/connection');
 const travelRouter = require('./routes/travel');
+const homeDetails = require('./routes/home-details');
 const myAccountRouter = require('./routes/account');
 
 //login and signup both point to authRouter
 app.use('/api', authRouter);
 app.use('/api', homeRouter);
 app.use('/api', reviewRouter);
-app.use('/api', matchRouter);
+app.use('/api', connectionRouter);
 app.use('/api', travelRouter);
+app.use('/api', homeDetails);
 app.use('/api', myAccountRouter);
 
 app.use('/', indexRouter);

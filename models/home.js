@@ -6,6 +6,9 @@ const homeSchema = new Schema({
   home: {type: String, enum: ['House', 'Apt', 'Both'], required: true},
   setting: {type: String, enum: ['Urban', 'Suburban', 'Rural'], required: true},
   landscape:{type: String, enum: ['Tropical', 'Mountainous', 'City', 'Coastal'], required: true},
+  bedrooms: {type: Number, required: true},
+  beds: {type: Number, required: true},
+  baths: {type: Number, required: true},
   address:{
     street: {type: String, required: true},
     city: {type: String, required: true},
@@ -18,7 +21,7 @@ const homeSchema = new Schema({
     url: String,
     id: String, 
   }],
-  reviews: {type : Schema.Types.ObjectId, ref: 'Reviews'}
+  reviews: [{type : Schema.Types.ObjectId, ref: 'Reviews'}]
 });
 
 homeSchema.set('timestamps', true);
