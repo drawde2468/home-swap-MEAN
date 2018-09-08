@@ -9,11 +9,14 @@ const passport          = require("passport");
 const bodyParser        = require("body-parser");
 const cloudinary        = require("cloudinary");
 const session           = require('express-session');
+const cors              = require('cors');
+
 
 const passportSetup = require('./config/passport');
 passportSetup(passport);
 
 const app = express();
+
 
 //Import the mongoose module
 const mongoose = require('mongoose');
@@ -69,6 +72,20 @@ app.use(express.urlencoded({
 }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+//cors config
+const originsWhitelist = [
+  'http://localhost:4200'
+];
+const corsOptions = {
+  origin: function(origin, callback){
+        const isWhitelisted = originsWhitelist.indexOf(origin) !== -1;
+        callback(null, isWhitelisted);
+  },
+  credentials:true
+}
+app.use(cors(corsOptions));
+
 
 // routes
 const indexRouter = require('./routes/index');

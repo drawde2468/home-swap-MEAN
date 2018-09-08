@@ -3,6 +3,9 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 
 const User = require('../models/user');
+const {
+  ObjectId
+} = require('mongodb');
 
 const authRoutes = express.Router();
 
@@ -69,6 +72,7 @@ authRoutes.post('/signup', (req, res, next) => {
 });
 
 authRoutes.post('/login', (req, res, next) => {
+
   passport.authenticate('local', (err, theUser, failureDetails) => {
     if (err) {
       res.status(500).json({
@@ -89,7 +93,9 @@ authRoutes.post('/login', (req, res, next) => {
         });
         return;
       }
-      res.status(200).json({message: 'Logged In'});
+      res.status(200).json({
+        message: 'Logged In'
+      });
     });
   })(req, res, next);
 });
@@ -107,6 +113,18 @@ authRoutes.get('/private', (req, res, next) => {
     res.json({
       message: 'This is a private message'
     });
+    return;
+  }
+
+  res.status(403).json({
+    message: 'Unauthorized'
+  });
+});
+
+authRoutes.get('/loggedin', (req, res, next) => {
+
+  if (req.isAuthenticated()) {
+    res.status(200).json(req.user);
     return;
   }
 
