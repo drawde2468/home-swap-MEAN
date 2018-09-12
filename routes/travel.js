@@ -15,9 +15,8 @@ router.get("/travel", (req, res, next) => {
         Travel.find({
             user: ObjectId(user)
         }).then((travels) => {
-            return res.json({
-                travels
-            });
+            console.log(travels)
+            return res.json(travels);
         }).catch(error => next(error));
     } else {
         res.status(403).json({
@@ -287,9 +286,9 @@ router.get("/travel/:id/results", (req, res, next) => {
                     }
                 }).populate('userHome').then((results) => {
                     // console.log(results);
-                    return res.json({
+                    return res.json(
                         results
-                    });
+                    );
                 }).catch(error => next(error));
             }).catch(error => next(error));
         } else {
