@@ -12,7 +12,7 @@ const storage = cloudinaryStorage({
   transformation: [{ width: 500, height: 500, crop: "limit" }]
 });
 
-const parser = multer({ storage: storage }).array("homePhotos", 10);
+const parser = multer({ storage: storage }).array("file", 10);
 
 const router = express.Router();
 
@@ -70,43 +70,33 @@ router.get("/myhome/:id", (req, res, next) => {
 router.post("/myhome", parser, (req, res, next) => {
   if (req.isAuthenticated()) {
     const owner = req.user._id;
+    console.log(req.body);
+    // console.log(req.body.address);
+    const parsedAddress = JSON.parse(req.body.address);
+    console.log(parsedAddress);
 
-    // const homePhotos = req.files;
-    // const images = [];
+    const file = req.files;
+    let images = [];
 
     // to see what is returned to you
     // console.log(req.files);
 
-    // for (i = 0; i < homePhotos.length; i++) {
-    //   let img = {
-    //     url: homePhotos[i].url,
-    //     id: homePhotos[i].id
-    //   };
-    //   images.push(img);
-    // }
-
-    // const {
-    //   homeType,
-    //   locationType,
-    //   settingType,
-    //   description,
-    //   // street,
-    //   // city,
-    //   // state,
-    //   // zipCode,
-    //   // country
-    // } = req.body;
-
-    // const address = { street, city, state, zipCode, country };
+    for (i = 0; i < file.length; i++) {
+      let img = {
+        url: file[i].url,
+        id: file[i].id
+      };
+      images.push(img);
+    }
 
     const { home, setting, landscape, bedrooms, beds, baths, description } = req.body;
 
     const address = {
-      street: req.body.address.street,
-      city: req.body.address.city,
-      state: req.body.address.state,
-      zipCode: req.body.address.zipCode,
-      country: req.body.address.country
+      street: parsedAddress.street,
+      city: parsedAddress.city,
+      state: parsedAddress.state,
+      zipCode: parsedAddress.zipCode,
+      country: parsedAddress.country
     };
 
     const userHome = new Home({
@@ -118,8 +108,8 @@ router.post("/myhome", parser, (req, res, next) => {
       beds,
       baths,
       address,
-      description
-      // images
+      description,
+      images
     });
 
     userHome
