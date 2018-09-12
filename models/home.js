@@ -6,9 +6,9 @@ const homeSchema = new Schema({
   home: {type: String, enum: ['House', 'Apt', 'Both'], required: true},
   setting: {type: String, enum: ['Urban', 'Suburban', 'Rural'], required: true},
   landscape:{type: String, enum: ['Tropical', 'Mountainous', 'City', 'Coastal'], required: true},
-  bedrooms: {type: Number, required: true},
-  beds: {type: Number, required: true},
-  baths: {type: Number, required: true},
+  bedrooms: {type: String, required: true},
+  beds: {type: String, required: true},
+  baths: {type: String, required: true},
   address:{
     street: {type: String, required: true},
     city: {type: String, required: true},
