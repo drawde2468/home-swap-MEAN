@@ -70,10 +70,9 @@ router.get("/myhome/:id", (req, res, next) => {
 router.post("/myhome", parser, (req, res, next) => {
   if (req.isAuthenticated()) {
     const owner = req.user._id;
-    console.log(req.body);
-    // console.log(req.body.address);
+    // console.log(req.body);
     const parsedAddress = JSON.parse(req.body.address);
-    console.log(parsedAddress);
+    // console.log(parsedAddress);
 
     const file = req.files;
     let images = [];
@@ -129,6 +128,52 @@ router.post("/myhome", parser, (req, res, next) => {
   });
 });
 
+//route for user to edit the info for their home or one of their homes(if more than one is saved to their account)
+router.put("/myhome/:id", (req, res, next) => {
+  if (req.isAuthenticated()) {
+    const homeId = req.params.id;
+    const parsedAddress = JSON.parse(req.body.address);
+
+    if (!mongoose.Types.ObjectId.isValid(homeId)) {
+      res.status(400).json({ message: "Specified id is not valid" });
+      return;
+    }
+
+     const addressUpdate = {
+      street: parsedAddress.street,
+      city: parsedAddress.city,
+      state: parsedAddress.state,
+      zipCode: parsedAddress.zipCode,
+      country: parsedAddress.country
+    };
+
+    const homeUpdate = {
+      home: req.body.home,
+      setting: req.body.setting,
+      landscape: req.body.landscape,
+      bedrooms: req.body.bedrooms,
+      beds: req.body.beds,
+      baths: req.body.baths,
+      address: addressUpdate,
+      description: req.body.description
+      // images:
+    };
+
+    Home.findByIdAndUpdate(homeId, homeUpdate, { new: true })
+      .then(home => {
+        return res.json({
+          message: "Your home was updated successfully"
+        });
+      })
+      .catch(error => next(error));
+    return;
+  }
+
+  res.status(403).json({
+    message: "Unauthorized"
+  });
+});
+
 // route for user to delete their home or one of their homes(if more than one is saved to their account)
 router.delete("/myhome/:id", (req, res, next) => {
   if (req.isAuthenticated()) {
@@ -147,43 +192,6 @@ router.delete("/myhome/:id", (req, res, next) => {
       })
       .catch(error => next(error));
 
-    return;
-  }
-
-  res.status(403).json({
-    message: "Unauthorized"
-  });
-});
-
-//route for user to edit the info for their home or one of their homes(if more than one is saved to their account)
-router.put("/myhome/:id", (req, res, next) => {
-  if (req.isAuthenticated()) {
-    const homeId = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(homeId)) {
-      res.status(400).json({ message: "Specified id is not valid" });
-      return;
-    }
-
-    const homeUpdate = {
-      home: req.body.home,
-      setting: req.body.setting,
-      landscape: req.body.landscape,
-      bedrooms: req.body.bedrooms,
-      beds: req.body.beds,
-      baths: req.body.baths,
-      address: req.body.address,
-      description: req.body.description
-      // images:
-    };
-
-    Home.findByIdAndUpdate(homeId, homeUpdate, { new: true })
-      .then(home => {
-        return res.json({
-          message: "Your home was updated successfully"
-        });
-      })
-      .catch(error => next(error));
     return;
   }
 
