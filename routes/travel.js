@@ -6,6 +6,8 @@ const {
     ObjectId
 } = require('mongodb');
 
+
+
 const router = express.Router();
 
 router.get("/travel", (req, res, next) => {
@@ -79,6 +81,32 @@ router.post("/travel", (req, res, next) => {
     });
 });
 
+router.get("/travel/:id", (req, res, next) => {
+    if (req.isAuthenticated()) {
+        const travelId = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(travelId)) {
+            res.status(400).json({
+                message: "Specified id is not valid"
+            });
+            return;
+        }
+
+        Travel.findById(
+                travelId)
+            .then(travel => {
+                console.log(travel)
+                return res.json(travel);
+            })
+            .catch(error => next(error));
+        return;
+    }
+
+    res.status(403).json({
+        message: "Unauthorized"
+    });
+});
+
 router.put("/travel/:id", (req, res, next) => {
     if (req.isAuthenticated()) {
         const travelId = req.params.id;
@@ -97,8 +125,10 @@ router.put("/travel/:id", (req, res, next) => {
             setting: req.body.setting,
             landscape: req.body.landscape
         };
-
-        Travel.findOneAndUpdate(travelId, updatedTravel, {
+        console.log(updatedTravel);
+        Travel.findOneAndUpdate({
+                _id: travelId
+            }, updatedTravel, {
                 new: true
             })
             .then(travel => {
@@ -145,12 +175,46 @@ router.delete("/travel/:id", (req, res, next) => {
     });
 });
 
+// router.put("/travel/:id1/like/:id2", (req, res, next) => {
+//     console.log(req.user._id)
+
+//     if (req.isAuthenticated()) {
+
+//         const otherTravelId = ObjectId(req.params.id2);
+//         const userTravelId = ObjectId(req.params.id1);
+
+//         if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
+//             res.status(400).json({
+//                 message: "Specified id is not valid"
+//             });
+//             return;
+//         }
+
+//         Travel.findOneAndUpdate({
+//             _id: userTravelId
+//         }, {
+//             $push: {
+//                 homesLiked: otherTravelId
+//             }
+//         }).then(() => {
+//             return res.json({
+//                 message: "Your like was successful"
+//             });
+//         }).catch(error => next(error));
+//         return;
+//     }
+
+//     res.status(403).json({
+//         message: "Unauthorized"
+//     });
+// });
+
 router.put("/travel/like/:id", (req, res, next) => {
 
     if (req.isAuthenticated()) {
-        //parameter coming in is of the other user's travel request
+
         const otherTravelId = ObjectId(req.params.id);
-        let userTravelId;
+        const userTravelId = ObjectId(req.body.id);
 
         if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
             res.status(400).json({
@@ -159,34 +223,17 @@ router.put("/travel/like/:id", (req, res, next) => {
             return;
         }
 
-        //query for the active travel _id of the logged in user
-        Travel.find({
-                $and: [{
-                    user: ObjectId(req.user._id)
-                }, {
-                    active: true
-                }]
-            }, {
-                _id: 1
-            }).exec()
-            .then((result) => {
-                userTravelId = result[0]._id;
-                //pushes parameter travel request _id into the logged in user's homesLiked arr
-                Travel.updateOne({
-                    _id: userTravelId
-                }, {
-                    $push: {
-                        homesLiked: otherTravelId
-                    }
-                }).then(() => {
-                    return res.json({
-                        message: "Your like was successful"
-                    });
-                }).catch(error => next(error));
-            })
-            .catch((err) => {
-                console.log(err);
-            })
+        Travel.findOneAndUpdate({
+            _id: userTravelId
+        }, {
+            $push: {
+                homesLiked: otherTravelId
+            }
+        }).then(() => {
+            return res.json({
+                message: "Your like was successful"
+            });
+        }).catch(error => next(error));
         return;
     }
 
@@ -195,12 +242,12 @@ router.put("/travel/like/:id", (req, res, next) => {
     });
 });
 
-//identical to above route but instead dealing with disliked 
 router.put("/travel/dislike/:id", (req, res, next) => {
 
     if (req.isAuthenticated()) {
+
         const otherTravelId = ObjectId(req.params.id);
-        let userTravelId;
+        const userTravelId = ObjectId(req.body.id);
 
         if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
             res.status(400).json({
@@ -209,34 +256,17 @@ router.put("/travel/dislike/:id", (req, res, next) => {
             return;
         }
 
-        Travel.find({
-                $and: [{
-                    user: ObjectId(req.user._id)
-                }, {
-                    active: true
-                }]
-            }, {
-                _id: 1
-            }).exec()
-            .then((result) => {
-
-                userTravelId = result[0]._id;
-
-                Travel.updateOne({
-                    _id: userTravelId
-                }, {
-                    $push: {
-                        homesDisliked: otherTravelId
-                    }
-                }).then(() => {
-                    return res.json({
-                        message: "Your dislike was successful"
-                    });
-                }).catch(error => next(error));
-            })
-            .catch((err) => {
-                console.log(err);
-            })
+        Travel.findOneAndUpdate({
+            _id: userTravelId
+        }, {
+            $push: {
+                homesDisliked: otherTravelId
+            }
+        }).then(() => {
+            return res.json({
+                message: "Your dislike was successful"
+            });
+        }).catch(error => next(error));
         return;
     }
 
@@ -245,8 +275,10 @@ router.put("/travel/dislike/:id", (req, res, next) => {
     });
 });
 
+
+
 //gets passed the id of the users travel request. returns all of the matches of their travel request with home populated
-router.get("/travel/:id/results", (req, res, next) => {
+router.get("/travel/results/:id", (req, res, next) => {
 
     const travelId = req.params.id
     // console.log(travelId);
@@ -263,7 +295,9 @@ router.get("/travel/:id/results", (req, res, next) => {
                 endDate,
                 home,
                 setting,
-                landscape
+                landscape,
+                homesLiked, //testing
+                homesDisliked, //testing
             } = parameters;
 
             Home.find({
@@ -278,9 +312,20 @@ router.get("/travel/:id/results", (req, res, next) => {
                 Travel.find({
                     beginDate: beginDate,
                     endDate: endDate,
-                    _id: {
-                        $ne: ObjectId(travelId)
-                    },
+                    $and: [{
+                        _id: {
+                            $ne: ObjectId(travelId)
+                        }
+                    }, {
+                        _id: {
+                            $nin: homesLiked
+                        }
+                    }, {
+                        _id: {
+                            $nin: homesDisliked
+                        }
+                    }],
+                    //  { _id : $ne: ObjectId(travelId),
                     userHome: {
                         $in: homeIdArr
                     }
@@ -300,5 +345,30 @@ router.get("/travel/:id/results", (req, res, next) => {
     return;
 });
 
+router.get("/travel/:travelid/matchcheck/:likedid", (req, res, next) => {
+
+    const travelId = req.params.travelid;
+    const likedId = req.params.likedid;
+    let match = false;
+
+    Travel.findById({
+        _id: ObjectId(likedId)
+    }).then((results) => {
+        if (results) {
+
+            for (i = 0; i < results.homesLiked.length; i++) {
+                if (results.homesLiked[i] == travelId) {
+                    console.log(results.homesLiked[i]);
+                    match = true
+                    return res.json(match);
+                }
+            }
+        } else {
+            return res.json({
+                message: `Not results found.`
+            });
+        }
+    }).catch(error => next(error));;
+});
 
 module.exports = router;
