@@ -6,8 +6,10 @@ const connectionSchema = new Schema({
   user2: {type : Schema.Types.ObjectId, ref: 'Users'},
   userRequest1: {type : Schema.Types.ObjectId, ref: 'Travels'},
   userRequest2: {type : Schema.Types.ObjectId, ref: 'Travels'},
-  confirmed1: {type: Boolean, default: false},
-  confirmed2: {type: Boolean, default: false},
+  // confirmed1: {type: Boolean, default: false},
+  // confirmed2: {type: Boolean, default: false},
+  confirmed1: {type : Schema.Types.ObjectId, ref: 'Users'},
+  confirmed2: {type : Schema.Types.ObjectId, ref: 'Users'},
   active: {type: Boolean, default: true}
 });
 

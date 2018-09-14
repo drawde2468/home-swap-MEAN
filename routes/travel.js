@@ -17,7 +17,7 @@ router.get("/travel", (req, res, next) => {
         Travel.find({
             user: ObjectId(user)
         }).then((travels) => {
-            console.log(travels)
+            // console.log(travels)
             return res.json(travels);
         }).catch(error => next(error));
     } else {
@@ -93,9 +93,9 @@ router.get("/travel/:id", (req, res, next) => {
         }
 
         Travel.findById(
-                travelId)
+                travelId).populate('userHome')
             .then(travel => {
-                console.log(travel)
+                // console.log(travel)
                 return res.json(travel);
             })
             .catch(error => next(error));
@@ -125,7 +125,7 @@ router.put("/travel/:id", (req, res, next) => {
             setting: req.body.setting,
             landscape: req.body.landscape
         };
-        console.log(updatedTravel);
+        // console.log(updatedTravel);
         Travel.findOneAndUpdate({
                 _id: travelId
             }, updatedTravel, {
@@ -358,7 +358,7 @@ router.get("/travel/:travelid/matchcheck/:likedid", (req, res, next) => {
 
             for (i = 0; i < results.homesLiked.length; i++) {
                 if (results.homesLiked[i] == travelId) {
-                    console.log(results.homesLiked[i]);
+                    // console.log(results.homesLiked[i]);
                     match = true
                     return res.json(match);
                 }

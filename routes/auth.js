@@ -108,18 +108,18 @@ authRoutes.post('/logout', (req, res, next) => {
 });
 
 //route for testing if the user is currently logged in
-authRoutes.get('/private', (req, res, next) => {
-  if (req.isAuthenticated()) {
-    res.json({
-      message: 'This is a private message'
-    });
-    return;
-  }
+// authRoutes.get('/private', (req, res, next) => {
+//   if (req.isAuthenticated()) {
+//     res.json({
+//       message: 'This is a private message'
+//     });
+//     return;
+//   }
 
-  res.status(403).json({
-    message: 'Unauthorized'
-  });
-});
+//   res.status(403).json({
+//     message: 'Unauthorized'
+//   });
+// });
 
 authRoutes.get('/loggedin', (req, res, next) => {
 
