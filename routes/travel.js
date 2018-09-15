@@ -330,7 +330,7 @@ router.get("/travel/results/:id", (req, res, next) => {
                         $in: homeIdArr
                     }
                 }).populate('userHome').then((results) => {
-                    // console.log(results);
+                    console.log(results);
                     return res.json(
                         results
                     );
