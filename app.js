@@ -1,15 +1,15 @@
 require('dotenv').config();
 
-const createError       = require('http-errors');
-const express           = require('express');
-const path              = require('path');
-const cookieParser      = require('cookie-parser');
-const logger            = require('morgan');
-const passport          = require("passport");
-const bodyParser        = require("body-parser");
-const cloudinary        = require("cloudinary");
-const session           = require('express-session');
-const cors              = require('cors');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const passport = require("passport");
+const bodyParser = require("body-parser");
+const cloudinary = require("cloudinary");
+const session = require('express-session');
+const cors = require('cors');
 
 
 const passportSetup = require('./config/passport');
@@ -41,7 +41,7 @@ cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET
-  });
+});
 //End Cloudinary config
 //passport
 app.use(session({
@@ -50,7 +50,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    maxAge: 1800000 
+    maxAge: 1800000
   }
 }));
 
@@ -75,14 +75,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //cors config
 const originsWhitelist = [
-  'http://localhost:4200'
+  `${process.env.CORS_URL}`
 ];
 const corsOptions = {
-  origin: function(origin, callback){
-        const isWhitelisted = originsWhitelist.indexOf(origin) !== -1;
-        callback(null, isWhitelisted);
+  origin: function (origin, callback) {
+    const isWhitelisted = originsWhitelist.indexOf(origin) !== -1;
+    callback(null, isWhitelisted);
   },
-  credentials:true
+  credentials: true
 }
 app.use(cors(corsOptions));
 
