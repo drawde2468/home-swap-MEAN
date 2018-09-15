@@ -21,7 +21,7 @@ const app = express();
 //Import the mongoose module
 const mongoose = require('mongoose');
 //Set up default mongoose connection
-mongoose.connect(process.env.MONGO_URL, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true
 });
 //Get Mongoose to use the global promise library
