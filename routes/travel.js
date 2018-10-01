@@ -175,40 +175,6 @@ router.delete("/travel/:id", (req, res, next) => {
     });
 });
 
-// router.put("/travel/:id1/like/:id2", (req, res, next) => {
-//     console.log(req.user._id)
-
-//     if (req.isAuthenticated()) {
-
-//         const otherTravelId = ObjectId(req.params.id2);
-//         const userTravelId = ObjectId(req.params.id1);
-
-//         if (!mongoose.Types.ObjectId.isValid(otherTravelId)) {
-//             res.status(400).json({
-//                 message: "Specified id is not valid"
-//             });
-//             return;
-//         }
-
-//         Travel.findOneAndUpdate({
-//             _id: userTravelId
-//         }, {
-//             $push: {
-//                 homesLiked: otherTravelId
-//             }
-//         }).then(() => {
-//             return res.json({
-//                 message: "Your like was successful"
-//             });
-//         }).catch(error => next(error));
-//         return;
-//     }
-
-//     res.status(403).json({
-//         message: "Unauthorized"
-//     });
-// });
-
 router.put("/travel/like/:id", (req, res, next) => {
 
     if (req.isAuthenticated()) {
