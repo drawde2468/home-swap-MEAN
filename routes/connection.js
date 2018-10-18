@@ -53,7 +53,7 @@ router.get("/connection", (req, res, next) => {
           user2: user
         }]
       }, '-__v -updatedAt')
-      .populate('userRequest1 userRequest2').then((connections, err) => {
+      .populate('user1 user2 userRequest1 userRequest2').then((connections, err) => {
         if (err) {
           res.json(err);
           return;
